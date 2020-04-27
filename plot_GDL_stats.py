@@ -84,6 +84,8 @@ def loss_vs_learning_rate (folders):
     # Save values in dataframe
     df = pd.DataFrame(data, columns=['learning_rate', 'trn_loss', 'val_loss'])
     df.sort_values(by='learning_rate', inplace=True)
+    
+    print('Data extracted.')
               
     return df
 
@@ -148,12 +150,16 @@ def val_stat_vs_epoch (folder, files, stat_name):
         new_df = df1.join(df2, on='epoch')
         new_df.sort_values(by='epoch', inplace=True)
         
+        print('Data extracted.')
+        
         return new_df
     
     # # To sort values with a specific parametter
     # df1.sort_values(by='epoch', inplace=True)  
     # return df1.loc[df1['epoch'] < 16]
-        
+    
+    print('Data extracted.')
+    
     return df1
 
 
@@ -195,6 +201,8 @@ def trn_vs_val_loss(folder):
     df2 = df2.set_index('epoch')
     new_df = df1.join(df2, on='epoch')
     new_df.sort_values(by='epoch', inplace=True)
+    
+    print('Data extracted.')
         
     return new_df
 
@@ -210,6 +218,8 @@ def plot_data(df, title, x_name, y_name, style):
     style (dictionnary) : Set of parameters related to the plot's appearence.
     return: None
     '''    
+    print('Plotting data.')
+    
     nb_cols = len(df.columns)
     
     # Data extent
@@ -321,6 +331,8 @@ if __name__ == '__main__':
     parser.add_argument("-r", "--replace", action="store_true", default=False, 
                         help="If used, will replace the existing file of the same name.")
     args = parser.parse_args()
+    
+    print('Checking validity of the paths.')
     
     # Checking validity of the input folders
     for folder in args.inFolders:
