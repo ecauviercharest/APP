@@ -259,13 +259,7 @@ def plot_data(df, title, x_name, y_name, style):
     
     # Saving the plot, if wanted
     if style['output_path'] is not None :
-        # extension = os.path.splitext(style['output_path'])[1]
-        
-        # if extension is not None:
         plt.savefig(style['output_path'])
-        # else:
-        #     plt.savefig(style['output_path'], format='png')
-            
         print('File saved.')
      
     plt.show() 
@@ -321,7 +315,7 @@ if __name__ == '__main__':
                         help="Path(s) of the folder(s) containing GeoDeepLearning's training results.")
     parser.add_argument("-st", "--stat",
                         choices=['val_fscore', 'val_loss', 'val_precision', 'val_recall'],
-                        help="Statistic to plot (for type of plots with stat in their name).")
+                        help="Statistic to plot (needed for val_stat_vs_epoch plots).")
     parser.add_argument("-x", "--xextent", metavar="XVALUE", nargs=2, type=float,
                         help="Minimum and maximum of the horizontal axis.")
     parser.add_argument("-y", "--yextent", metavar="YVALUE",nargs=2, type=float,
@@ -352,5 +346,9 @@ if __name__ == '__main__':
 
         if os.path.isfile(args.save) and args.replace == False:
             raise FileExistsError(args.save)
+    
+    # Checking if an argument is missing
+    if args.plots == 'val_stat_vs_epoch' and args.stat is None :
+        parser.error("Missing argument : The argument stat is required for type 'val_stat_vs_epoch' plots.")
     
     main(args)
