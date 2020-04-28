@@ -26,15 +26,15 @@ Trois types de graphiques sont possibles :
 Le script est appelé avec la ligne de commande :
 python plot_GDL_stats.py [plots] [inFolders] {-st, --stat} {-x, --xextent} {-y, --yextent} {-s, --save} {-r, --replace}
 où
-[..] : indique les arguments obligatoires
-{..} : indique les arguments optionnels
-plots : type de graphique voulu parmis loss_vs_learning_rate, val_stat_vs_epoch et trn_vs_val_loss.
-inFolders : dossier(s) contenant le ou les résultats d'entraînements nécessaires pour le graphique. Seulement le graphique 'loss_vs_learning_rate' requiert plus d'un dossier.
-stat : statistique de validation à représenter lorsque le graphique est de type 'val_stat_vs_epoch'. Choisir parmi val_fscore, val_loss, val_precision et val_recall.
-xextent : valeurs minimale et maximale de l'axe des x. Incrire les deux valeurs dans l'ordre ascendant, séparées par un espace.
-yextent : valeurs minimale et maximale de l'axe des y. Incrire les deux valeurs dans l'ordre ascendant, séparées par un espace.
-save : emplacement et nom du fichier où le graphique sera enregistré
-replace : à écrire pour pouvoir remplacer un fichier qui existe déjà
+[..] : indique les arguments obligatoires;
+{..} : indique les arguments optionnels;
+plots : type de graphique voulu parmis loss_vs_learning_rate, val_stat_vs_epoch et trn_vs_val_loss;
+inFolders : dossier(s) contenant le ou les résultats d'entraînements nécessaires pour le graphique. Seulement le graphique 'loss_vs_learning_rate' requiert plus d'un dossier;
+stat : statistique de validation à représenter lorsque le graphique est de type 'val_stat_vs_epoch'. Choisir parmi val_fscore, val_loss, val_precision et val_recall;
+xextent : valeurs minimale et maximale de l'axe des x. Incrire les deux valeurs dans l'ordre ascendant, séparées par un espace;
+yextent : valeurs minimale et maximale de l'axe des y. Incrire les deux valeurs dans l'ordre ascendant, séparées par un espace;
+save : emplacement et nom du fichier où le graphique sera enregistré;
+replace : à écrire pour pouvoir remplacer un fichier qui existe déjà.
 
 Librairies requises : argparse, matplotlib, os.path, pandas
 
