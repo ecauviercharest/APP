@@ -1,142 +1,165 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Aug  1 12:36:29 2019
-
-@author: caue3201
-"""
-
-#importation des librairies
+import sys, glob, os, sys
+import logging, getopt
+import subprocess
+import configparser
 import whitebox
-import glob
-#from tkinter import Tk
-#from tkinter.filedialog import askdirectory
-import os
-from shutil import copyfile
+from shutil import copyfile, copy
 
-# =============================================================================
-# Indice de Hjerdt: 
-#   We propose a new way of estimating the hydraulic gradient by calculating how
-#   far downhill (Ld, [m]) a parcel of water must move in order to lose a certain
-#   amount of potential energy (d, [m]). Expressed as a gradient, tanad = d/Ld, 
-#   values tend to be lower on concave slope profiles and higher on convex slope 
-#   profiles compared with the local gradient, tanb.
+'''
+logger = logging.getLogger('gmq580')
+logger.setLevel(logging.DEBUG)
 
+logger.info("Process starts")
+logger.error("Params is Null")
 
-# Suite à la lecture de l'article: 
-# faudrait lire les amélioration de tarboton 1997 et woods et al 1997
+# fichier
+fh = logging.FileHandler('C:\temp\gmq580.log')
+# à l'écran
+ch = logging.StreamHandler()
+#
 
-# Grayson et Western 2001 on vu que many hydrologic processes that drive the 
-# wetness distribution may be controlled by other factors not captured by the index
+Conserver les paramètres de mon
+application dans un fichier config (une
+sorte de fichier .ini)
+● Il peut être intéressant de disposer d’un
+fichier .ini qui sera lu au départ de
+l’application (config parser)
 
-# Rodhe and Seibert [1999] found that local topographic slope alone was a better 
-# predictor of wet areas than the ln(a/tanb) index
+'''
 
-# Theoretically, the ln(a/tanb) index makes the assumption that local drainage is
-# not affected by downslope conditions. However, Speight [1980] argued that it is
-# the balance between the specific catchment area (upslope contributing area per 
-# unit length of contour) and the specific dispersal area (downslope area per unit 
-# length of contour) that controls the drainage of water from any location
+outputdir = ""
+inputdir = ""
+typeIT = "D8"
 
-# Many common hydrologic models use land surface slope as a substitute for the slope of 
-# the groundwater table and hydraulic gradients. In strongly convex or concave terrain
-# , however, hydraulic gradients may also be influenced by drainage conditions downslope
-# of the immediate area around the point of consideration
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "hd:o:t:", ["help", "directory", "output", "type"])
+except:
+    print("for help use --help")
+    propertiesfiles, outputdir = "", ""
+for o, a in opts:
+    if o in ("-h", "--help"):
+        print("")
+        print("Bienvenue dans l'aide. Pour produire un indice, svp rédiger la commande au format suivant:")
+        print("nomduscript.py -d path/to/input/directory/ -o path/to/output/directory/ -t type d'indice voulu")
+        print("Le type d'indice est soit : D8, FD8 ou Dinf. D8 est l'indice par défaut si aucun n'est spécifié.")
+    elif o in ("-d", "--directory"):
+        inputdir = a
+    elif o in ("-o", "--output"):
+        outputdir = a
+    elif o in ("t", "--type"):
+        typeIT = a
 
-#The downslope value can be reported either as a distance Ld or as a grandiant tandalphad 
-#où tan_alpha_d = d/ ld where ld is the horizontal distance to the point with an elevation d beters
-# below the elevation of the starting cell, follining the steepest direction flow path.  
+# définir le log et son format
+logger = logging.getLogger('IT')
+logger.setLevel(logging.DEBUG)
+fh = logging.FileHandler(outputdir + '\IT.log')
+fh.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(levelname)-8s %(asctime)s %(message)s (call: %(module)s-%(funcName)s)')
+fh.setFormatter(formatter)
+ch.setFormatter(formatter)
+logger.addHandler(fh)
+logger.addHandler(ch)
 
-#Reasonable values ofdare assessed on thebasis of topographic relief, resolution of the DEM used, 
-#and local soil transmissivity. We illustrate the effects of varyingthedvalue for a given 
-#DEM in section 3.
-
-# tester tan alpha à 5m, 10m et 25 m 
-
-# =============================================================================
-
-
-# https://github.com/jblindsay/whitebox-tools/blob/master/manual/WhiteboxToolsManual.md
 wbt = whitebox.WhiteboxTools()
 
 
 def D8(dossier, img, directory):
     wbt.set_working_dir(directory)
     wbt.verbose = False
-    
-    imgpath = dossier + img
-    copyfile(imgpath, directory+img)
+
+    imgpath = os.path.join(dossier, img)
+    try:
+        copyfile(imgpath, directory + img)
+        logger.info("File copied : " + directory + img)
+    except IOError as e:
+        logger.error("Unable to copy file. %s" % e)
+    except:
+        logger.error("Unexpected error:", sys.exc_info())
+
     imgFile = os.path.splitext(img)[0]
     imgName = imgFile[4:]
-    wbt.breach_depressions(img, "D8_"+imgName+"_breached.tif")
-    wbt.slope(img, "D8_"+imgName+"_slope.tif")
-    wbt.d8_flow_accumulation("D8_"+imgName+"_breached.tif", "D8_"+imgName+"flow_acc.tif", 'specific contributing area')
-        
-    wbt.wetness_index("D8_"+imgName+"flow_acc.tif", "D8_"+imgName+"_slope.tif", "TWI_D8_"+imgName+".tif")
+    logger.debug("img =" + img)
+    logger.debug("breach depression path = D8_" + imgName + "_breached.tif")
+    try:
+        wbt.breach_depressions(img, "D8_" + imgName + "_breached.tif")
+        logger.info("DEM has been breached." + directory + img)
+    except:
+        logger.error("Unexpected error:", sys.exc_info())
+    wbt.slope(img, "D8_" + imgName + "_slope.tif")
+    wbt.d8_flow_accumulation("D8_" + imgName + "_breached.tif", "D8_" + imgName + "flow_acc.tif",
+                             'specific contributing area')
+
+    wbt.wetness_index("D8_" + imgName + "flow_acc.tif", "D8_" + imgName + "_slope.tif", "TWI_D8_" + imgName + ".tif")
     os.remove(directory + img)
-    os.remove(directory + "D8_"+imgName+"_slope.tif")
-    os.remove(directory + "D8_"+imgName+"_breached.tif")
-    os.remove(directory + "D8_"+imgName+"flow_acc.tif")
-   
-    
+    os.remove(directory + "D8_" + imgName + "_breached.tif")
+    os.remove(directory + "D8_" + imgName + "_slope.tif")
+    os.remove(directory + "D8_" + imgName + "flow_acc.tif")
+
+
 def Dinf(dossier, img, directory):
     wbt.set_working_dir(directory)
     wbt.verbose = False
-    
     imgpath = dossier + img
-    copyfile(imgpath, directory+img)
-    
+    copyfile(imgpath, directory + img)
+
     imgFile = os.path.splitext(img)[0]
     imgName = imgFile[4:]
-    
-    wbt.breach_depressions(img, "D8_"+imgName+"_breached.tif")
-    wbt.slope(img, "D8_"+imgName+"_slope.tif")
-    wbt.d_inf_flow_accumulation("D8_"+imgName+"_breached.tif", "Dinf_"+imgName+"flow_acc.tif", 'specific contributing area')
-    wbt.wetness_index("Dinf_"+imgName+"flow_acc.tif", "D8_"+imgName+"_slope.tif", "TWI_Dinf_"+imgName+".tif")
-    os.remove(directory + img)
-    os.remove(directory + "D8_"+imgName+"_slope.tif")
-    os.remove(directory + "D8_"+imgName+"_breached.tif")
-    os.remove(directory + "Dinf_"+imgName+"flow_acc.tif")
 
-    
+    wbt.breach_depressions(img, "D8_" + imgName + "_breached.tif")
+    wbt.slope(img, "D8_" + imgName + "_slope.tif")
+    wbt.d_inf_flow_accumulation("D8_" + imgName + "_breached.tif", "Dinf_" + imgName + "flow_acc.tif",
+                                'specific contributing area')
+    wbt.wetness_index("Dinf_" + imgName + "flow_acc.tif", "D8_" + imgName + "_slope.tif",
+                      "TWI_Dinf_" + imgName + ".tif")
+    os.remove(directory + img)
+    os.remove(directory + "D8_" + imgName + "_slope.tif")
+    os.remove(directory + "D8_" + imgName + "_breached.tif")
+    os.remove(directory + "Dinf_" + imgName + "flow_acc.tif")
+
 
 def fD8(dossier, img, directory):
     wbt.set_working_dir(directory)
     wbt.verbose = False
-    
     imgpath = dossier + img
-    copyfile(imgpath, directory+img)
-    
+    copyfile(imgpath, directory + img)
     imgFile = os.path.splitext(img)[0]
     imgName = imgFile[4:]
-    
-    wbt.breach_depressions(img, "D8_"+imgName+"_breached.tif")
-    wbt.slope(img, "D8_"+imgName+"_slope.tif")
-    wbt.d_inf_flow_accumulation("D8_"+imgName+"_breached.tif", "FD8_"+imgName+"flow_acc.tif", 'specific contributing area')
-    wbt.wetness_index("FD8_"+imgName+"flow_acc.tif", "D8_"+imgName+"_slope.tif", "TWI_FD8_"+imgName+".tif")
+    wbt.breach_depressions(img, "D8_" + imgName + "_breached.tif")
+    wbt.slope(img, "D8_" + imgName + "_slope.tif")
+    wbt.d_inf_flow_accumulation("D8_" + imgName + "_breached.tif", "FD8_" + imgName + "flow_acc.tif",
+                                'specific contributing area')
+    wbt.wetness_index("FD8_" + imgName + "flow_acc.tif", "D8_" + imgName + "_slope.tif", "TWI_FD8_" + imgName + ".tif")
     os.remove(directory + img)
-    os.remove(directory + "D8_"+imgName+"_slope.tif")
-    os.remove(directory + "D8_"+imgName+"_breached.tif")
-    os.remove(directory + "FD8_"+imgName+"flow_acc.tif")
-    
-
-    
-
+    os.remove(directory + "D8_" + imgName + "_slope.tif")
+    os.remove(directory + "D8_" + imgName + "_breached.tif")
+    os.remove(directory + "FD8_" + imgName + "flow_acc.tif")
 
 def main():
-    dossier = r'F:/Jonathan/APP_Jonathan/MNT/Reproj/Chapeau/'
-    #dossier = r'G:/Hiv2020/APPJO/MNT/TEST/'
-    listeMNT = glob.glob(dossier + '*.tif')
+    #dossier = r'F:/Jonathan/APP_Jonathan/MNT/Reproj/Chapeau/'
+    # dossier = r'G:/Hiv2020/APPJO/MNT/TEST/'
+    inputdirectory = os.path.abspath(inputdir)
+    listeMNT = glob.glob(inputdir + '/' + '*.tif')
 
     for imgpath in listeMNT:
         filename = os.path.basename(imgpath)
         print(filename)
-        
+
+        if typeIT == 'D8':
+            logger.info("Processing " + filename + " using " + typeIT + " method...")
+            D8(inputdirectory, filename, outputdir)
+
+        elif typeIT == 'Dinf':
+            logger.info("Processing " + filename + "using " + typeIT + " method...")
+            Dinf(inputdirectory, filename, r'F:/Elizabeth/Production_IT/1m_resolution/TWI/Chapeau/Dinf/')
+
+        elif typeIT == 'FD8':
+            logger.info("Processing " + filename + "using " + typeIT + " method...")
+            fD8(inputdirectory, filename, r'F:/Elizabeth/Production_IT/1m_resolution/TWI/Chapeau/FD8/')
+
         print('Méthode D8 en cours...')
-        D8(dossier, filename, r'F:/Elizabeth/Production_IT/1m_resolution/TWI/Chapeau/D8/')
-        # print('Méthode Dinf en cours...')
-        Dinf(dossier, filename, r'F:/Elizabeth/Production_IT/1m_resolution/TWI/Chapeau/Dinf/')
-        # print('Méthode FD8 en cours...')
-        fD8(dossier, filename, r'F:/Elizabeth/Production_IT/1m_resolution/TWI/Chapeau/FD8/')
+
+
 
 main()
-
