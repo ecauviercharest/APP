@@ -9,6 +9,7 @@ Les scripts produits pour ce projet peuvent être subdivisés en deux groupes :
 
 
 ***Indices topographiques***
+
 Le script script_IT.py permet la production de l'indice Topographic Wetness Index (TWI) de Beven & Kirkby (1979) à l'aide de l'algorithme d'écoulement D8 (O'Callaghan & Mark, 1984), Dinf (Quinn et al., 1995), FD8 (Freeman, 1991). Le script peut être appelé en ligne de commmande de la manière suivante: 
 nomduscript.py -d path/to/input/directory/ -o path/to/output/directory/ -t type d'indice voulu
 
