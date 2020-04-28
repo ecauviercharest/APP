@@ -25,7 +25,6 @@ Trois types de graphiques sont possibles :
 
 Le script est appelé avec la ligne de commande :
 python plot_GDL_stats.py [plots] [inFolders] {-st, --stat} {-x, --xextent} {-y, --yextent} {-s, --save} {-r, --replace}
-
 où
 [..] : indique les arguments obligatoires
 {..} : indique les arguments optionnels
