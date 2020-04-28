@@ -1,6 +1,6 @@
 # APP
 
-Le projet APP est en lien avec l'utilisation du modèle d'apprentissage profond GeoDeepearning de Ressources naturelles Canada (https://github.com/NRCan/geo-deep-learning). 
+Le projet APP est en lien avec l'utilisation du modèle d'apprentissage profond GeoDeepLearning de Ressources naturelles Canada (https://github.com/NRCan/geo-deep-learning). 
 Il a comme but d'évaluer les indices topographiques produits à partir de modèles numériques de terrain dans un contexte d'apprentissage profond. 
 Les statistiques produites lors de l'entraînement des modèles serviront à comparer les différents apports des indices pour identifier lhydrologie de surface. 
 Les scripts produits pour ce projet peuvent être subdivisés en deux groupes :
