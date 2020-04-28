@@ -9,8 +9,9 @@ Les scripts produits pour ce projet peuvent être subdivisés en deux groupes :
 
 
 ***Indices topographiques***
+Le script script_IT.py permet la production de l'indice Topographic Wetness Index (TWI) de Beven & Kirkby (1979) à l'aide de l'algorithme d'écoulement D8 (O'Callaghan & Mark, 1984), Dinf (Quinn et al., 1995), FD8 (Freeman, 1991). Le script peut être appelé en ligne de commmande de la manière suivante: 
 
-A venir.
+L'indice de Hjerdt (Hjerdt et al., 2004) peut être produit à l'aide du script Hjerdt.py. Le script n'est présentement pas disponible en ligne de commande, mais il le sera sous peut. 
 
 Des fichiers tif des modèles numériques de terrain sont disponibles gratuitement sur : https://ouvert.canada.ca/data/fr/dataset/768570f8-5761-498a-bd6a-315eb6cc023d
 
