@@ -1,4 +1,5 @@
 import numpy as np
+import time
 from osgeo import gdal
 
 '''
@@ -8,7 +9,7 @@ Ld = horizontal distance to the point with an elevation d meters below the eleva
 following the steepest-direction flow path
 '''
 
-
+print (time.asctime( time.localtime(time.time()) ))
 def raster2array(rasterfn):
     raster = gdal.Open(rasterfn)
     band = raster.GetRasterBand(1)
@@ -57,44 +58,22 @@ def array2raster(newRasterfn, rasterfn, array):
     outband.FlushCache()
 
 
-'''
-array = ([[9, 8, 5, 3],
-         [5, 7, 6, 2],
-         [1, 2, 6, 1]])
-
-for i in range(len(array)):
-    for j in range(len(array[0])):
-        value = array[i][j] - 5
-        index = find_nearest(array, value)
-        print(value)
-        print(index)
-        #x, y = index[0], index[1]
-        #dist = np.sqrt((i - x)**2 + (j -y)**2)
-        #print(Hjerdt(5, dist))
-        print('______')
-
-'''
-
-
 def createIT(array, d):
     IT = []
-    count = 0
-    while count < 2:
-        for i in range(len(array)):
-            row = []
-            for j in range(len(array[0])):
-                value = array[i][j] - d
-                index = find_nearest(array, value)
-                x, y = index[0], index[1]
-                dist = np.sqrt((i - x) ** 2 + (j - y) ** 2)
-                row.append(Hjerdt(5, dist))
-            count = count + 1
-            print('done: ', (count / len(array)))
-            IT.append(row)
+    for i in range(len(array)):
+        row = []
+        for j in range(len(array[0])):
+            value = array[i][j] - d
+            index = find_nearest(array, value)
+            x, y = index[0], index[1]
+            dist = np.sqrt((i - x) ** 2 + (j - y) ** 2)
+            row.append(Hjerdt(5, dist))
+        print('done: ', (count / len(array)))
+        IT.append(row)
         print(IT)
     return IT
 
-
+'''
 def main(MNTpath, outputPathfn, d):
     MNTarray = raster2array(MNTpath)  # creates array from MNT
     Hjerdtarray = createIT(MNTarray, d)
@@ -108,3 +87,27 @@ if __name__ == "__main__":
     outputPathfn = r'C:/Users/caue3201/Desktop/test_result.tif'
     d = 5
     main(MNTpath, outputPathfn, d)
+'''
+MNTarray = raster2array(r'C:/Users/Eliraptor/Downloads/dtm_1m_utm18_w_18_119.tif')  # creates array from MNT
+
+MNTint = MNTarray.astype(int)
+#uniqueval = np.unique(MNTint) # liste des valeurs d'élévation possibles
+
+valindex = {} # dictionnaire de l'emplacement des pixels ayant une telle valeur d'élévation
+
+MNTarray = None
+
+for i in range(len(MNTint)):
+    for j in range(len(MNTint[0])):
+            index = i, j
+            elev = MNTint[i][j]
+            if elev not in valindex:
+                valindex[elev] = []
+            valindex[elev].append(index)
+
+print(valindex)
+print(time.asctime(time.localtime(time.time())))
+
+
+
+
