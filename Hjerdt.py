@@ -16,7 +16,7 @@ def raster2array(rasterfn):
     array = band.ReadAsArray()
     return array
 
-
+'''
 def find_nearest(array, value):
     a = np.asarray(array)
     at = a.transpose()
@@ -30,6 +30,7 @@ def find_nearest(array, value):
     else:
         idx = idx2[1], idx2[0]
     return idx
+'''
 
 
 def Hjerdt(d, Ld):
@@ -58,20 +59,7 @@ def array2raster(newRasterfn, rasterfn, array):
     outband.FlushCache()
 
 
-def createIT(array, d):
-    IT = []
-    for i in range(len(array)):
-        row = []
-        for j in range(len(array[0])):
-            value = array[i][j] - d
-            index = find_nearest(array, value)
-            x, y = index[0], index[1]
-            dist = np.sqrt((i - x) ** 2 + (j - y) ** 2)
-            row.append(Hjerdt(5, dist))
-        print('done: ', (count / len(array)))
-        IT.append(row)
-        print(IT)
-    return IT
+
 
 '''
 def main(MNTpath, outputPathfn, d):
@@ -88,24 +76,93 @@ if __name__ == "__main__":
     d = 5
     main(MNTpath, outputPathfn, d)
 '''
-MNTarray = raster2array(r'C:/Users/Eliraptor/Downloads/dtm_1m_utm18_w_18_119.tif')  # creates array from MNT
-
-MNTint = MNTarray.astype(int)
-#uniqueval = np.unique(MNTint) # liste des valeurs d'élévation possibles
-
-valindex = {} # dictionnaire de l'emplacement des pixels ayant une telle valeur d'élévation
-
-MNTarray = None
-
-for i in range(len(MNTint)):
-    for j in range(len(MNTint[0])):
+def indexdict(MNT):
+    valindex = {}  # dictionnaire de l'emplacement des pixels ayant une telle valeur d'élévation
+    for i in range(len(MNT)):
+        for j in range(len(MNT[0])):
             index = i, j
-            elev = MNTint[i][j]
+            elev = MNT[i][j]
             if elev not in valindex:
                 valindex[elev] = []
             valindex[elev].append(index)
+    return valindex
 
-print(valindex)
+def find_nearest(dict, value, row, col):
+    for x in dict[value]:
+        print(x)
+    dist1 = np.sqrt(idx1[0] ** 2 + idx1[1] ** 2)
+    dist2 = np.sqrt(idx2[0] ** 2 + idx2[1] ** 2)
+    if dist1 < dist2:
+        idx = idx1
+    else:
+        idx = idx2[1], idx2[0]
+    return idx
+
+
+
+
+    '''
+    def find_nearest(array, value):
+        a = np.asarray(array)
+        at = a.transpose()
+        # idx = np.unravel_index(np.argmin(a, axis=None), a.shape)
+        idx1 = np.unravel_index(np.argmin(np.abs(a - value), axis=None), a.shape)
+        idx2 = np.unravel_index(np.argmin(np.abs(at - value), axis=None), at.shape)
+        dist1 = np.sqrt(idx1[0] ** 2 + idx1[1] ** 2)
+        dist2 = np.sqrt(idx2[0] ** 2 + idx2[1] ** 2)
+        if dist1 < dist2:
+            idx = idx1
+        else:
+            idx = idx2[1], idx2[0]
+        return idx
+    '''
+
+def createIT(array, d):
+    IT = []
+    for i in range(len(array)):
+        row = []
+        for j in range(len(array[0])):
+            value = array[i][j] - d
+            index = find_nearest(array, value)
+            x, y = index[0], index[1]
+            dist = np.sqrt((i - x) ** 2 + (j - y) ** 2)
+            row.append(Hjerdt(5, dist))
+        print('done: ', (count / len(array)))
+        IT.append(row)
+        print(IT)
+    return IT
+
+
+MNTarray = raster2array(r'D:/Jonathan/APP_Jonathan/MNT/Reproj/Chapeau/MNT_CH_18_13w109.tif')  # creates array from MNT
+MNTint = MNTarray.astype(int)
+MNTarray = None
+
+valindex = indexdict(MNTint)
+
+IT = []
+for i in range(len(MNTint)):
+    row = []
+    for j in range(len(MNTint[0])):
+        value = MNTint[i][j] - 5
+        index = find_nearest(valindex, value, i, j)
+        print(valindex[MNTint[i][j]])
+        print(value, index)
+
+
+
+
+'''
+import csv
+
+my_dict = valindex
+
+with open('G:/indice/test/mycsvfile.csv', 'w') as f:  # Just use 'w' mode in 3.x
+    w = csv.DictWriter(f, my_dict.keys())
+    w.writeheader()
+    w.writerow(my_dict)
+'''
+#print(valindex[244])
+
 print(time.asctime(time.localtime(time.time())))
 
 
